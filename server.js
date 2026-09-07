@@ -10,6 +10,10 @@ app.use('/', createProxyMiddleware({
   secure: false,
   onProxyReq: (proxyReq, req, res) => {
     proxyReq.setHeader('origin', 'https://www.haxball.com');
+    proxyFig = 'https://www.haxball.com';
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
   }
 }));
 
