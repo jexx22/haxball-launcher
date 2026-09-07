@@ -6,7 +6,11 @@ const app = express();
 app.use('/', createProxyMiddleware({
   target: 'https://www.haxball.com',
   changeOrigin: true,
-  ws: true
+  ws: true,
+  secure: false,
+  onProxyReq: (proxyReq, req, res) => {
+    proxyReq.setHeader('origin', 'https://www.haxball.com');
+  }
 }));
 
 const PORT = process.env.PORT || 3000;
