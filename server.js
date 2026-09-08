@@ -1,5 +1,5 @@
 const express = require('express');
-const { createProxyMiddleware, responseInterceptor } = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
@@ -8,16 +8,9 @@ app.use('/', createProxyMiddleware({
   changeOrigin: true,
   ws: true,
   secure: false,
-  selfHandleResponse: true,
-  onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    
-    let response = responseBuffer.toString('utf8');
-    response = response.replace(/https:\/\/www\.haxball\.com/g, '');
-    return response;
-  })
+  onProxyReq: (proxyReq, req, res) => {
+    proxyReq.setHeader('origin', 'https://www.haxball.com');
+  }
 }));
 
 const PORT = process.env.PORT || 3000;
