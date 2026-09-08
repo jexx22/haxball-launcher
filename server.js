@@ -3,17 +3,24 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
-app.use('/', createProxyMiddleware({
+const proxyOptions = {
   target: 'https://www.haxball.com',
   changeOrigin: true,
-  ws: true,
+  ws: true, // Esto es lo vital para que pasen las salas en tiempo real
   secure: false,
-  onProxyReq: (proxyReq, req, res) => {
+  onProxyReqWs: (proxyReq, req, socket, options, head) => {
     proxyReq.setHeader('origin', 'https://www.haxball.com');
   }
-}));
+};
+
+app.use('/', createProxyMiddleware(proxyOptions));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
+});
+
+// Soporte extra para asegurar el puente de WebSockets en Render
+server.on('upgrade', (req, socket, head) => {
+  createProxyMiddleware(proxyOptions).upgrade(req, socket, head);
 });
